@@ -35,6 +35,8 @@ def filteringData():
     aux = list(filters['Treated'].unique())
     filterList = [val.strip() for val in aux]
     df['Critical?'] =df.apply(defineCriticalCFN,axis = 1,filterList = filterList)
-    df.to_excel('Results\prueba.xlsx',index=False)
+    FileName = input('Ingrese el nombre con el que desea guardar el documento')
+    FileName = f'Results\{FileName}.xlsx'
+    df.to_excel(FileName,index=False)
 
     
