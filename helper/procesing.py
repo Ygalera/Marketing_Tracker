@@ -102,5 +102,5 @@ def searchSP(row,sp):
     temp = sp[sp['REGISTRATION NUMBER'] == rs]
     text = ''
     for id,Status,type in zip(temp['Id'],temp['Status'],temp['Submission Type']):
-        text += f'ID:{id},type(s):{type},Status Regulatorio:{Status}\n'
+        text += f'ID:{id}, type(s):{type} ,Status Regulatorio:{Status}\n'
     return text

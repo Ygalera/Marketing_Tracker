@@ -190,3 +190,9 @@ def load_SPlan():
                                       'License Expiration Date':'EXPIRATION DATE'})
     print('Submission Plan cargado')
     return df_plan
+
+def chargeFilters():
+    df = pd.read_excel('Documents\Filters.xlsx',converters={'CFN':str,'SubOU':str})
+    df['Treated'] = df.apply(pr.treadCFNs,axis =  1)
+    df = pr.sp_trim(df)
+    return df
