@@ -103,4 +103,6 @@ def searchSP(row,sp):
     text = ''
     for id,Status,type in zip(temp['Id'],temp['Status'],temp['Submission Type']):
         text += f'ID:{id}, type(s):{type} ,Status Regulatorio:{Status}\n'
+    if text == '':
+        text+='No info on Submission plan'
     return text
