@@ -27,7 +27,7 @@ def defineCriticalCFN(row,filterList):
         return 'Critical CFN'
     else:
         return 'Not critical CFN'
-        
+              
 def filteringData(token):
     df,sp,filters = prepareData(token)
     listOU  = [ou.strip() for ou in filters['SubOU'].unique()]
