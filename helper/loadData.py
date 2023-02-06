@@ -1,15 +1,32 @@
 import pandas as pd
 import helper.procesing as pr
-import datetime
-import re
 import os
 import warnings
-import numpy as np
+import smartsheet
 warnings.filterwarnings('ignore')
+
+def optionDBs():
+
+    if os.path.isdir(os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Documentos\Databases')):
+        return os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Documentos\Databases')
+    elif os.path.isdir(os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Documents\Databases')):
+        return  os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Documents\Databases')
+    
+    elif os.path.isdir(os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Databases')):
+        return os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Databases')
+    
+
+def getReport(report_id,reportName,token):
+    print(f'Downloading {reportName}')
+    current_dir = os.getcwd()
+    path = f'{current_dir}\Documents/'
+    smart = smartsheet.Smartsheet(token)
+    smart.Reports.get_report_as_excel(report_id,path,reportName)
+    print(f'{reportName} was correctly Downloaded')
 
 def uploadData():
     print('Cargando Bases de datos...')
-    path = os.path.join(os.path.expanduser('~'), r'Medtronic PLC\Approvals and Databases SSC - Documents\Databases')
+    path = optionDBs()
     countries = {
         'BO': 'Bolivia',
         'CO': 'Colombia',
@@ -181,18 +198,49 @@ def uploadData():
 
     return df
 
-def load_SPlan():
+def load_SPlan(token):
+    report_id ='8721565023004548'
+    reportName = 'Submission Plan - Full Report.xlsx'
+    getReport(report_id,reportName,token)
     print('Cargando Submission Plan...')
-    df_plan = pd.read_excel('Documents\Submission Plan - Full Report.xlsx',usecols=['Id','RAS Name','Project/Product Name','Status',
-                            'Submission Type','Expected Submission Date','Approval Date','Therapy Group','Expected Approval Date',
-                            'Submission Date','Country','Cluster','License Number','RAC/RAN','SubOU','License Expiration Date'])
-    df_plan = df_plan.rename(columns={'Project/Product Name':'PRODUCT NAME','License Number':'REGISTRATION NUMBER',
-                                      'License Expiration Date':'EXPIRATION DATE'})
+    df_plan = pd.read_excel('Documents\Submission Plan - Full Report.xlsx',usecols=['Id','RAS Name','Project/Product Name','Status','Submission Type','Expected Submission Date','Approval Date','Therapy Group',
+                            'Expected Approval Date','Submission Date','Country','Cluster','License Number','RAC/RAN','SubOU','License Expiration Date'])
+    df_plan = df_plan.rename(columns={'Project/Product Name':'PRODUCT NAME','License Number':'REGISTRATION NUMBER','License Expiration Date':'EXPIRATION DATE'})
     print('Submission Plan cargado')
     return df_plan
 
+def load_vouchers(token):
+    report_id = 5282231775192964
+    reportName = 'Vouchers Report.xlsx'
+    print('Cargando los datos de Vouchers...')
+    getReport(report_id,reportName,token)
+    df = pd.read_excel('Documents\Vouchers Report.xlsx',converters = {'Primary':str})
+    df = df.rename(columns={'Project/Product Name':'PRODUCT NAME','Primary':'REGISTRATION NUMBER'})
+    print('Vouchers Cargados')
+    return df
+
+def load_criticals(token):
+    report_id = 6660752464471940
+    reportName = 'Expected Critical communications.xlsx'
+    getReport(report_id,reportName,token)
+    print('Cargando los datos de Expected Critical communications...')
+    df = pd.read_excel('Documents\Expected Critical Communications Report.xlsx',date_parser=['License Expiration Date'],converters={'License Number':str})
+    df = df.rename(columns={'PRODUCT NAME':'PRODUCT NAME','License Number':'REGISTRATION NUMBER'})
+    print('Critical communications cargados')
+    return df
+
+def load_external():
+    Name = input('Ingrese el nombre del documento a cruzar con el Submission plan: ')
+    FileName = f'Documents/{Name}.xlsx'
+    hoja = input('Ingrese el nombre de la hoja principal con la que se cruzará el Submission Plan: ')
+    print(f'Cargando {FileName}')
+    df = pd.read_excel(FileName,sheet_name = hoja )
+    return df
+
 def chargeFilters():
+    print('Cargando los filtros de trabajo')
     df = pd.read_excel('Documents\Filters.xlsx',converters={'CFN':str,'SubOU':str})
     df['Treated'] = df.apply(pr.treadCFNs,axis =  1)
     df = pr.sp_trim(df)
+    print('Los filtros han sido cargados adecuadamente')
     return df
