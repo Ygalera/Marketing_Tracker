@@ -244,3 +244,5 @@ def chargeFilters():
     df = pr.sp_trim(df)
     print('Los filtros han sido cargados adecuadamente')
     return df
+
+

@@ -1,5 +1,6 @@
 import helper.loadData as ld
 import helper.procesing as pr
+import pandas as pd
 def prepareData(token):
     filters = ld.chargeFilters()
     df = ld.uploadData()
@@ -27,7 +28,21 @@ def defineCriticalCFN(row,filterList):
         return 'Critical CFN'
     else:
         return 'Not critical CFN'
-              
+
+def determinenotFound(df,FilterList):
+    CnF = pd.DataFrame(columns = ['CFN Not Found'])
+    reference = list(df['Treated CFN'].unique())
+    notFound = []
+    for val in FilterList:
+        if val in reference:
+            pass
+        else:
+            notFound.append(val)
+    
+    CnF['CFN Not Found'] = notFound
+    return CnF
+        
+
 def filteringData(token):
     df,sp,filters = prepareData(token)
     listOU  = [ou.strip() for ou in filters['SubOU'].unique()]
@@ -40,8 +55,13 @@ def filteringData(token):
     print('Asignando Prioridad a los Productos...')
     df['Critical?'] =df.apply(defineCriticalCFN,axis = 1,filterList = filterList)
     print('Prioridad satisfactoriamente asignada')
-    FileName = input('Ingrese el nombre con el que desea guardar el documento: ')
-    FileName = f'Results\{FileName}.xlsx'
-    df.to_excel(FileName,index=False)
+    CnF = determinenotFound(df,filterList)
+    pr.create_excel(df,CnF)
+
+
+
+    # FileName = input('Ingrese el nombre con el que desea guardar el documento: ')
+    # FileName = f'Results\{FileName}.xlsx'
+    # df.to_excel(FileName,index=False)
 
     

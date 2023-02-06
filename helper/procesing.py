@@ -94,8 +94,6 @@ def treadCFNs(row):
     aux = re.sub(pattern, '', str(cfn))
     return aux
 
-
-
 def searchSP(row,sp):
     rs = str(row['REGISTRATION NUMBER'])
     rs = rs.strip()
@@ -106,3 +104,11 @@ def searchSP(row,sp):
     if text == '':
         text+='No info on Submission plan'
     return text
+
+def create_excel(df,splan):
+    file = input('Nombre del archivo a guardar: ')
+    path = f'Results\{file}.xlsx'
+
+    with pd.ExcelWriter(path) as writer1:
+        df.to_excel(writer1, sheet_name = 'Regulatory Info', index = False)
+        splan.to_excel(writer1, sheet_name = 'Not Found', index = False)
