@@ -30,7 +30,7 @@ def defineCriticalCFN(row,filterList):
         return 'Not critical CFN'
 
 def determinenotFound(df,FilterList):
-    CnF = pd.DataFrame(columns = ['CFN Not Found'])
+    CnF = pd.DataFrame(columns = ['Treated CFN'])
     reference = list(df['Treated CFN'].unique())
     notFound = []
     for val in FilterList:
@@ -39,9 +39,15 @@ def determinenotFound(df,FilterList):
         else:
             notFound.append(val)
     
-    CnF['CFN Not Found'] = notFound
+    CnF['Treated CFN'] = notFound
     return CnF
-        
+
+def searchOriginal(row,df2):
+    a = row['Treated CFN']
+    b = df2.loc[df2['Treated'] == a,'CFN'].unique()
+    b= b[0]
+    return b
+
 
 def filteringData(token):
     df,sp,filters = prepareData(token)
@@ -56,12 +62,6 @@ def filteringData(token):
     df['Critical?'] =df.apply(defineCriticalCFN,axis = 1,filterList = filterList)
     print('Prioridad satisfactoriamente asignada')
     CnF = determinenotFound(df,filterList)
+    df2 = filters.drop('SubOU',axis = 1)
+    CnF['Original CFN'] = CnF.apply(searchOriginal,axis=1,df2=df2)
     pr.create_excel(df,CnF)
-
-
-
-    # FileName = input('Ingrese el nombre con el que desea guardar el documento: ')
-    # FileName = f'Results\{FileName}.xlsx'
-    # df.to_excel(FileName,index=False)
-
-    
