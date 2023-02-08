@@ -118,6 +118,13 @@ def SumCountries(row):
     return count
 
 
+def ChangeValues(df):
+    ref = ['CFN','# of Countries']
+    for col in df.columns:
+        if col not in ref:
+            df[col] = df[col].replace([1],'Si')
+            df[col] = df[col].replace([0],' No')
+    return df
 
 def createTable(df):
     df1 = df[df['Critical?']=='Critical CFN']
@@ -125,6 +132,7 @@ def createTable(df):
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
+    pivoted = ChangeValues(pivoted)
     pivoted.to_excel('Results\Prueba de pivote.xlsx')
 
 
