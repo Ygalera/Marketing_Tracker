@@ -65,4 +65,5 @@ def filteringData(token):
     df2 = filters.drop('SubOU',axis = 1)
     CnF['Original CFN'] = CnF.apply(searchOriginal,axis=1,df2=df2)
     inCountry = pr. createInCountry(df)
-    pr.create_excel(df,CnF,inCountry)
+    portfolio = pr.Createportfoliostatus(df,filters)
+    pr.create_excel(df,CnF,inCountry,portfolio)

@@ -137,16 +137,30 @@ def createInCountry(df):
     pivoted = ChangeValues(pivoted)
     return pivoted
 
-def Createportfoliostatus(df):
+def Createportfoliostatus(df,filters):
+    cantidad = len(filters['CFN'])
     df1 = df[df['Critical?']=='Critical CFN']
+    countries = list(df['Country'].unique())
+    df2 = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
+    for country in countries:
+        aux = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
+        Temp = df1[df1['Country'] == country]
+        aux['Pais'] = [country]
+        aux['Cantidad Presente'] = [len(Temp)]
+        aux['Total'] = [cantidad]
+        aux['Cantidad ausente'] = [cantidad-len(Temp)]
+        df2 = pd.concat([df2,aux])
+    df2['Porcentaje Presente'] =  (df2['Cantidad Presente']/df2['Total'])*100
+    return df2
 
-def create_excel(df,splan,pivoted):
+
+def create_excel(df,splan,pivoted,portfolio):
     user = os.path.expanduser('~').split('\\')[2]
-    date = datetime.datetime.today()
+    date = datetime.datetime.now()
     date = date.strftime(('%Y_%m_%d'))
-    FileName = f'{user} {user}'
-    path = f'Results\{FileName}.xlsx'
+    path = f'Results\{user} {date} Regulatory info Tracking.xlsx'
     with pd.ExcelWriter(path) as writer1:
         df.to_excel(writer1, sheet_name = 'Regulatory Info', index = False)
         splan.to_excel(writer1, sheet_name = 'Not Found', index = False)
         pivoted.to_excel(writer1, sheet_name = 'In country')
+        portfolio.to_excel(writer1, sheet_name = 'portfolio', index = False)
