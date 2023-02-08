@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import datetime
 import re
+import os
+
 
 def cut_values(row,column = 'MANUFACTURING ADDRESS',sep = '\n' ):
     var = str(row[column])
@@ -126,20 +128,25 @@ def ChangeValues(df):
             df[col] = df[col].replace([0],' No')
     return df
 
-def createTable(df):
+def createInCountry(df):
     df1 = df[df['Critical?']=='Critical CFN']
     df1['count'] = 1
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
     pivoted = ChangeValues(pivoted)
-    pivoted.to_excel('Results\Prueba de pivote.xlsx')
+    return pivoted
 
+def Createportfoliostatus(df):
+    df1 = df[df['Critical?']=='Critical CFN']
 
-def create_excel(df,splan):
-    file = input('Nombre del archivo a guardar: ')
-    path = f'Results\{file}.xlsx'
-
+def create_excel(df,splan,pivoted):
+    user = os.path.expanduser('~').split('\\')[2]
+    date = datetime.datetime.today()
+    date = date.strftime(('%Y_%m_%d'))
+    FileName = f'{user} {user}'
+    path = f'Results\{FileName}.xlsx'
     with pd.ExcelWriter(path) as writer1:
         df.to_excel(writer1, sheet_name = 'Regulatory Info', index = False)
         splan.to_excel(writer1, sheet_name = 'Not Found', index = False)
+        pivoted.to_excel(writer1, sheet_name = 'In country')
