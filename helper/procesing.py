@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import datetime
 import re
 
@@ -104,6 +105,28 @@ def searchSP(row,sp):
     if text == '':
         text+='No info on Submission plan'
     return text
+
+def SumCountries(row):
+    ref = ['CFN']
+    count = 0
+    for col in row.index:
+        if col in ref:
+            count+=0
+        else:
+            if row[col] !=0:
+                count+=1
+    return count
+
+
+
+def createTable(df):
+    df1 = df[df['Critical?']=='Critical CFN']
+    df1['count'] = 1
+    pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
+                            margins=False)
+    pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
+    pivoted.to_excel('Results\Prueba de pivote.xlsx')
+
 
 def create_excel(df,splan):
     file = input('Nombre del archivo a guardar: ')

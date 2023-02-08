@@ -64,4 +64,5 @@ def filteringData(token):
     CnF = determinenotFound(df,filterList)
     df2 = filters.drop('SubOU',axis = 1)
     CnF['Original CFN'] = CnF.apply(searchOriginal,axis=1,df2=df2)
-    pr.create_excel(df,CnF)
+    pr.createTable(df)
+    # pr.create_excel(df,CnF)
