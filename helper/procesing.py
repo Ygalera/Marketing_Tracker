@@ -3,6 +3,7 @@ import numpy as np
 import datetime
 import re
 import os
+from tqdm import tqdm
 
 
 def cut_values(row,column = 'MANUFACTURING ADDRESS',sep = '\n' ):
@@ -46,8 +47,8 @@ def reference(row,col='Expected Approval Date'):
 
 
 def sp_trim(df):
-    print('Pre proesando los datos....')
-    for name in df.columns:
+    print('Pre proesando los datos:')
+    for name in tqdm(df.columns):
         if name not in ['Expected Submission Date','Submission Date','Approval Date','Expected Approval Date','Created','PC3 Due Date','DM Complete date','PC3 Complete Date','License Expiration Date','EXPIRATION DATE']:
             df[name] = df.apply(trim_column,axis = 1,column = name)
     print('Los datos fueron correctamente trimeados')
@@ -129,6 +130,7 @@ def ChangeValues(df):
     return df
 
 def createInCountry(df):
+    print('Generando Hoja in country')
     df1 = df[df['Critical?']=='Critical CFN']
     df1['count'] = 1
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
@@ -142,7 +144,8 @@ def Createportfoliostatus(df,filters):
     df1 = df[df['Critical?']=='Critical CFN']
     countries = list(df['Country'].unique())
     df2 = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
-    for country in countries:
+    print('Generando Hoja Portaflio')
+    for country in tqdm(countries):
         aux = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
         Temp = df1[df1['Country'] == country]
         aux['Pais'] = [country]
@@ -155,6 +158,7 @@ def Createportfoliostatus(df,filters):
 
 
 def create_excel(df,splan,pivoted,portfolio):
+    print('Generando Reporte')
     user = os.path.expanduser('~').split('\\')[2]
     date = datetime.datetime.now()
     date = date.strftime(('%Y_%m_%d'))
@@ -164,3 +168,4 @@ def create_excel(df,splan,pivoted,portfolio):
         splan.to_excel(writer1, sheet_name = 'Not Found', index = False)
         pivoted.to_excel(writer1, sheet_name = 'In country')
         portfolio.to_excel(writer1, sheet_name = 'portfolio', index = False)
+    print('Proceso Exitosamente finalizado')
