@@ -6,6 +6,9 @@ import os
 from tqdm import tqdm
 
 
+# tqdm.format_dict['color'] = '\033[32m'
+
+
 def cut_values(row,column = 'MANUFACTURING ADDRESS',sep = '\n' ):
     var = str(row[column])
     if sep in var:
@@ -161,7 +164,7 @@ def create_excel(df,splan,pivoted,portfolio):
     print('Generando Reporte')
     user = os.path.expanduser('~').split('\\')[2]
     date = datetime.datetime.now()
-    date = date.strftime(('%Y_%m_%d'))
+    date = date.strftime("%Y-%m-%d_%H-%M-%S")
     path = f'Results\{user} {date} Regulatory info Tracking.xlsx'
     with pd.ExcelWriter(path) as writer1:
         df.to_excel(writer1, sheet_name = 'Regulatory Info', index = False)
