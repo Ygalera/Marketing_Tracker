@@ -5,10 +5,6 @@ import re
 import os
 from tqdm import tqdm
 
-
-# tqdm.format_dict['color'] = '\033[32m'
-
-
 def cut_values(row,column = 'MANUFACTURING ADDRESS',sep = '\n' ):
     var = str(row[column])
     if sep in var:
@@ -159,8 +155,14 @@ def Createportfoliostatus(df,filters):
     df2['Porcentaje Presente'] =  (df2['Cantidad Presente']/df2['Total'])*100
     return df2
 
+def createSubOU(df):
+    df1 = df[df['Critical?']=='Critical CFN']
+    df3 = df1[['Country','OU']]
+    pivoted = pd.pivot_table(data=df3,index='Country',columns='OU', aggfunc=len,fill_value=0)
+    
+    return pivoted
 
-def create_excel(df,splan,pivoted,portfolio):
+def create_excel(df,splan,pivoted,portfolio,byOU):
     print('Generando Reporte')
     user = os.path.expanduser('~').split('\\')[2]
     date = datetime.datetime.now()
@@ -171,4 +173,5 @@ def create_excel(df,splan,pivoted,portfolio):
         splan.to_excel(writer1, sheet_name = 'Not Found', index = False)
         pivoted.to_excel(writer1, sheet_name = 'In country')
         portfolio.to_excel(writer1, sheet_name = 'portfolio', index = False)
+        byOU.to_excel(writer1, sheet_name = 'count by SubOU')
     print('Proceso Exitosamente finalizado')
