@@ -135,7 +135,11 @@ def createInCountry(df):
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
+    df2 = df[['CFN','OU']]
     pivoted = ChangeValues(pivoted)
+    pivoted = pivoted.reset_index()
+    pivoted = pd.merge(pivoted,df2,on='CFN',how='left')
+
     return pivoted
 
 def Createportfoliostatus(df,filters):
@@ -171,7 +175,7 @@ def create_excel(df,splan,pivoted,portfolio,byOU):
     with pd.ExcelWriter(path) as writer1:
         df.to_excel(writer1, sheet_name = 'Regulatory Info', index = False)
         splan.to_excel(writer1, sheet_name = 'Not Found', index = False)
-        pivoted.to_excel(writer1, sheet_name = 'In country')
+        pivoted.to_excel(writer1, sheet_name = 'In country',index = False)
         portfolio.to_excel(writer1, sheet_name = 'portfolio', index = False)
         byOU.to_excel(writer1, sheet_name = 'count by SubOU')
     print('Proceso Exitosamente finalizado')
