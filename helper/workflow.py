@@ -25,10 +25,15 @@ def PrepareNotfound(df,filters):
             notFound.append(cfn)
     return notFound
 
-def defineCriticalCFN(row,filterList):
+def defineCriticalCFN(row,filterList,filters):
     a = row['Treated CFN']
     if a in filterList:
-        return 'Critical CFN'
+        try:
+            aux = filters[filters['Treated'] == a]['Priority'].unique()
+            b = aux[0]
+        except:
+            b = 'Not defined on List'
+        return b
     else:
         return 'Not critical CFN'
 
@@ -62,10 +67,11 @@ def filteringData(token):
     aux = list(filters['Treated'].unique())
     filterList = [val.strip() for val in aux]
     print('Asignando Prioridad a los Productos:')
-    df['Critical?'] = df.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList)
+    df['Critical?'] = df.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
     print('Prioridad satisfactoriamente asignada')
     CnF = determinenotFound(df,filterList)
     df2 = filters.drop('SubOU',axis = 1)
+
     print('Generando CFNs no encontrados:')
     CnF['Original CFN'] = CnF.progress_apply(searchOriginal,axis=1,df2=df2)
     inCountry = pr.createInCountry(df)

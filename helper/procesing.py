@@ -130,7 +130,7 @@ def ChangeValues(df):
 
 def createInCountry(df):
     print('Generando Hoja in country')
-    df1 = df[df['Critical?']=='Critical CFN']
+    df1 = df[df['Critical?'].isin(['1.0','2.0','3.0'])]
     df1['count'] = 1
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
@@ -139,12 +139,13 @@ def createInCountry(df):
     pivoted = ChangeValues(pivoted)
     pivoted = pivoted.reset_index()
     pivoted = pd.merge(pivoted,df2,on='CFN',how='left')
+    pivoted = pivoted.drop_duplicates(subset='CFN')
 
     return pivoted
 
 def Createportfoliostatus(df,filters):
     cantidad = len(filters['CFN'])
-    df1 = df[df['Critical?']=='Critical CFN']
+    df1 = df[df['Critical?'].isin(['1.0','2.0','3.0'])]
     countries = list(df['Country'].unique())
     df2 = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
     print('Generando Hoja Portaflio')
@@ -160,7 +161,7 @@ def Createportfoliostatus(df,filters):
     return df2
 
 def createSubOU(df):
-    df1 = df[df['Critical?']=='Critical CFN']
+    df1= df[df['Critical?'].isin(['1.0','2.0','3.0'])]
     df3 = df1[['Country','OU']]
     pivoted = pd.pivot_table(data=df3,index='Country',columns='OU', aggfunc=len,fill_value=0)
     
