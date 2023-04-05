@@ -135,7 +135,8 @@ def createInCountry(df):
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
-    df2 = df[['CFN','MPG']]
+    df2 = df[['CFN','MPG','Global OU']]
+    print(df2.columns)
     pivoted = ChangeValues(pivoted)
     pivoted = pivoted.reset_index()
     pivoted = pd.merge(pivoted,df2,on='CFN',how='left')

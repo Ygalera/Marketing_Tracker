@@ -37,11 +37,11 @@ def defineCriticalCFN(row,filterList,filters):
     else:
         return 'Not critical CFN'
 
-def assignMPG(row,filterList,filters):
+def assignMPG(row,filterList,filters,assigner = 'MPG' ):
     a = row['Treated CFN']
     if a in filterList:
         try:
-            aux = filters[filters['Treated'] == a]['MPG'].unique()
+            aux = filters[filters['Treated'] == a][assigner].unique()
             b = aux[0]
         except:
             b = 'Not defined on List'
@@ -68,7 +68,6 @@ def searchOriginal(row,df2):
     b= b[0]
     return b
 
-
 def filteringData(token):
     df,sp,filters = prepareData(token)
     listOU  = [ou.strip() for ou in filters['SubOU'].unique()]
@@ -82,6 +81,8 @@ def filteringData(token):
     df['Critical?'] = df.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
     print('Asignando MPG a los CFNs ')
     df['MPG'] = df.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters)
+    print('Asignando Global OU')
+    df['Global OU'] = df.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters,assigner = 'Global OU')
     print('Prioridad satisfactoriamente asignada')
     CnF = determinenotFound(df,filterList)
     df2 = filters.drop('SubOU',axis = 1)
@@ -89,6 +90,8 @@ def filteringData(token):
     CnF['Original CFN'] = CnF.progress_apply(searchOriginal,axis=1,df2=df2)
     print('asignando MPG a los valores no encontrados')
     CnF['MPG'] = CnF.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters)
+    print('Asignando Global OU')
+    CnF['Global OU'] = CnF.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters,assigner = 'Global OU')
     print('Asignando Prioridades')
     CnF['Priority'] = CnF.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
     inCountry = pr.createInCountry(df)
