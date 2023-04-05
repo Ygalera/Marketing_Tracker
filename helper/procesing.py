@@ -37,13 +37,11 @@ def concatMfg(row,colum1 = 'Manufacturing site 1',colum2 = 'Manufacturing site 2
     mfg = mfg1 + '\n' + mfg2
     return mfg
 
-
 def reference(row,col='Expected Approval Date'):
     a = row[col]
     delta = datetime.timedelta(90)
     ref = a + delta
     return ref
-
 
 def sp_trim(df):
     print('Pre proesando los datos:')
@@ -86,7 +84,6 @@ def expandRows(df):
     new_criticals = newCol(df)
     return new_criticals
 
-
 def sufix_search(df,ref):
      temp = df[df['CFN'].str.startswith(ref)]
      return temp
@@ -118,7 +115,6 @@ def SumCountries(row):
             if row[col] !=0:
                 count+=1
     return count
-
 
 def ChangeValues(df):
     ref = ['CFN','# of Countries']
