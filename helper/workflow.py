@@ -37,6 +37,18 @@ def defineCriticalCFN(row,filterList,filters):
     else:
         return 'Not critical CFN'
 
+def assignMPG(row,filterList,filters):
+    a = row['Treated CFN']
+    if a in filterList:
+        try:
+            aux = filters[filters['Treated'] == a]['MPG'].unique()
+            b = aux[0]
+        except:
+            b = 'Not defined on List'
+        return b
+    else:
+        return 'Not in Filters list'
+
 def determinenotFound(df,FilterList):
     CnF = pd.DataFrame(columns = ['Treated CFN'])
     reference = list(df['Treated CFN'].unique())
@@ -68,12 +80,17 @@ def filteringData(token):
     filterList = [val.strip() for val in aux]
     print('Asignando Prioridad a los Productos:')
     df['Critical?'] = df.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
+    print('Asignando MPG a los CFNs ')
+    df['MPG'] = df.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters)
     print('Prioridad satisfactoriamente asignada')
     CnF = determinenotFound(df,filterList)
     df2 = filters.drop('SubOU',axis = 1)
-
     print('Generando CFNs no encontrados:')
     CnF['Original CFN'] = CnF.progress_apply(searchOriginal,axis=1,df2=df2)
+    print('asignando MPG a los valores no encontrados')
+    CnF['MPG'] = CnF.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters)
+    print('Asignando Prioridades')
+    CnF['Priority'] = CnF.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
     inCountry = pr.createInCountry(df)
     portfolio = pr.Createportfoliostatus(df,filters)
     byOU = pr.createSubOU(df)

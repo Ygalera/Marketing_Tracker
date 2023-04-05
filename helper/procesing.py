@@ -135,7 +135,7 @@ def createInCountry(df):
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
-    df2 = df[['CFN','OU']]
+    df2 = df[['CFN','MPG']]
     pivoted = ChangeValues(pivoted)
     pivoted = pivoted.reset_index()
     pivoted = pd.merge(pivoted,df2,on='CFN',how='left')
@@ -162,9 +162,8 @@ def Createportfoliostatus(df,filters):
 
 def createSubOU(df):
     df1= df[df['Critical?'].isin(['1.0','2.0','3.0'])]
-    df3 = df1[['Country','OU']]
-    pivoted = pd.pivot_table(data=df3,index='Country',columns='OU', aggfunc=len,fill_value=0)
-    
+    df3 = df1[['Country','MPG']]
+    pivoted = pd.pivot_table(data=df3,index='Country',columns='MPG', aggfunc=len,fill_value=0)
     return pivoted
 
 def create_excel(df,splan,pivoted,portfolio,byOU):
