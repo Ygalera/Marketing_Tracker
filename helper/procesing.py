@@ -132,7 +132,6 @@ def createInCountry(df):
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
     df2 = df[['CFN','MPG','Global OU']]
-    print(df2.columns)
     pivoted = ChangeValues(pivoted)
     pivoted = pivoted.reset_index()
     pivoted = pd.merge(pivoted,df2,on='CFN',how='left')
@@ -154,7 +153,7 @@ def Createportfoliostatus(df,filters):
         aux['Total'] = [cantidad]
         aux['Cantidad ausente'] = [cantidad-len(Temp)]
         df2 = pd.concat([df2,aux])
-    df2['Porcentaje Presente'] =  (df2['Cantidad Presente']/df2['Total'])*100
+    df2['Porcentaje Presente'] =  (df2['Cantidad Presente']/df2['Total'])
     return df2
 
 def createSubOU(df):
@@ -163,7 +162,7 @@ def createSubOU(df):
     pivoted = pd.pivot_table(data=df3,index='Country',columns='MPG', aggfunc=len,fill_value=0)
     return pivoted
 
-def create_excel(df,splan,pivoted,portfolio,byOU):
+def create_excel(df,splan,pivoted,portfolio,byOU,stats):
     print('Generando Reporte')
     user = os.path.expanduser('~').split('\\')[2]
     date = datetime.datetime.now()
@@ -175,4 +174,5 @@ def create_excel(df,splan,pivoted,portfolio,byOU):
         pivoted.to_excel(writer1, sheet_name = 'In country',index = False)
         portfolio.to_excel(writer1, sheet_name = 'portfolio', index = False)
         byOU.to_excel(writer1, sheet_name = 'count by SubOU')
+        stats.to_excel(writer1, sheet_name = 'Percentageper MPG and country', index = False)
     print('Proceso Exitosamente finalizado')

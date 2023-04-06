@@ -2,6 +2,7 @@ import helper.loadData as ld
 import helper.procesing as pr
 import pandas as pd
 from tqdm import tqdm
+import numpy as np
 tqdm.pandas()
 def prepareData(token):
     filters = ld.chargeFilters()
@@ -68,6 +69,26 @@ def searchOriginal(row,df2):
     b= b[0]
     return b
 
+def createPercentageMPG(df,filters):
+    df = df[df['Critical?']!='Not in Filters list']
+    listCountry = df['Country'].unique()
+    stats = pd.DataFrame(columns = ['Country','MPG','Total MPG presente'])
+    listFilters,countFilters = np.unique(filters['MPG'].str.strip(),return_counts=True)
+    middle = pd.DataFrame({'MPG':listFilters,'Total esperado':countFilters})
+    for country in listCountry:
+        aux = df[df['Country'] == country]
+        aux = aux.drop_duplicates(subset = 'CFN')
+        aux_stats = pd.DataFrame(columns = ['Country','MPG','Total MPG presente'])
+        listMPG,count = np.unique(aux['MPG'],return_counts=True)
+        aux_stats['MPG'] = listMPG
+        aux_stats['Total MPG presente'] = count
+        aux_stats['Country'] = country
+        stats = pd.concat([stats,aux_stats])
+    stats = stats.merge(middle,on = 'MPG',how='inner')
+    stats['Porcentaje'] = ((stats['Total MPG presente']/stats['Total esperado']))
+    stats = stats.sort_values(by='Country')
+    return stats
+
 def filteringData(token):
     df,sp,filters = prepareData(token)
     listOU  = [ou.strip() for ou in filters['SubOU'].unique()]
@@ -82,7 +103,7 @@ def filteringData(token):
     print('Asignando MPG a los CFNs ')
     df['MPG'] = df.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters)
     print('Asignando Global OU')
-    df['Global OU'] = df.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters,assigner = 'Global OU')
+    df['Global OU'] = df.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters,assigner = 'GLOBAL OU')
     print('Prioridad satisfactoriamente asignada')
     CnF = determinenotFound(df,filterList)
     df2 = filters.drop('SubOU',axis = 1)
@@ -91,10 +112,11 @@ def filteringData(token):
     print('asignando MPG a los valores no encontrados')
     CnF['MPG'] = CnF.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters)
     print('Asignando Global OU')
-    CnF['Global OU'] = CnF.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters,assigner = 'Global OU')
+    CnF['Global OU'] = CnF.progress_apply(assignMPG,axis = 1,filterList = filterList,filters =filters,assigner = 'GLOBAL OU')
     print('Asignando Prioridades')
     CnF['Priority'] = CnF.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
+    stats = createPercentageMPG(df,filters)
     inCountry = pr.createInCountry(df)
     portfolio = pr.Createportfoliostatus(df,filters)
     byOU = pr.createSubOU(df)
-    pr.create_excel(df,CnF,inCountry,portfolio,byOU)
+    pr.create_excel(df,CnF,inCountry,portfolio,byOU,stats)
