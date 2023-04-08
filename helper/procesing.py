@@ -126,7 +126,7 @@ def ChangeValues(df):
 
 def createInCountry(df):
     print('Generando Hoja in country')
-    df1 = df[df['Critical?'].isin(['1.0','2.0','3.0'])]
+    df1 = df[df['Critical?'].isin(['1.0','2.0','3.0','1','2','3'])]
     df1['count'] = 1
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
@@ -141,13 +141,14 @@ def createInCountry(df):
 
 def Createportfoliostatus(df,filters):
     cantidad = len(filters['CFN'])
-    df1 = df[df['Critical?'].isin(['1.0','2.0','3.0'])]
+    df1 = df[df['Critical?'].isin(['1.0','2.0','3.0','1','2','3'])]
     countries = list(df['Country'].unique())
     df2 = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
     print('Generando Hoja Portaflio')
     for country in tqdm(countries):
         aux = pd.DataFrame(columns=['Pais','Cantidad Presente','Cantidad ausente','Total','Porcentaje Presente'])
         Temp = df1[df1['Country'] == country]
+        Temp = Temp.drop_duplicates(subset = 'CFN')
         aux['Pais'] = [country]
         aux['Cantidad Presente'] = [len(Temp)]
         aux['Total'] = [cantidad]
@@ -157,7 +158,7 @@ def Createportfoliostatus(df,filters):
     return df2
 
 def createSubOU(df):
-    df1= df[df['Critical?'].isin(['1.0','2.0','3.0'])]
+    df1= df[df['Critical?'].isin(['1.0','2.0','3.0','1','2','3'])]
     df3 = df1[['Country','MPG']]
     pivoted = pd.pivot_table(data=df3,index='Country',columns='MPG', aggfunc=len,fill_value=0)
     return pivoted

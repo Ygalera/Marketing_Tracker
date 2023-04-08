@@ -245,6 +245,7 @@ def chargeFilters():
     df = pd.read_excel('Documents\Filters.xlsx',converters={'CFN':str,'SubOU':str})
     df['Treated'] = df.apply(pr.treadCFNs,axis =  1)
     df = pr.sp_trim(df)
+    df = df.drop_duplicates(subset='CFN')
     print('Los filtros han sido cargados adecuadamente')
     return df
 
