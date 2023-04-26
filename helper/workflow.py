@@ -71,22 +71,10 @@ def searchOriginal(row,df2):
 
 def createPercentageMPG(df,filters):
     df = df[df['Critical?']!='Not in Filters list']
-    listCountry = df['Country'].unique()
-    stats = pd.DataFrame(columns = ['Country','MPG','Total MPG presente'])
-    listFilters,countFilters = np.unique(filters['MPG'].str.strip(),return_counts=True)
-    middle = pd.DataFrame({'MPG':listFilters,'Total esperado':countFilters})
-    for country in listCountry:
-        aux = df[df['Country'] == country]
-        aux = aux.drop_duplicates(subset = 'CFN')
-        aux_stats = pd.DataFrame(columns = ['Country','MPG','Total MPG presente'])
-        listMPG,count = np.unique(aux['MPG'],return_counts=True)
-        aux_stats['MPG'] = listMPG
-        aux_stats['Total MPG presente'] = count
-        aux_stats['Country'] = country
-        stats = pd.concat([stats,aux_stats])
-    stats = stats.merge(middle,on = 'MPG',how='inner')
-    stats['Porcentaje'] = ((stats['Total MPG presente']/stats['Total esperado']))
-    stats = stats.sort_values(by='Country')
+    df['count']=1
+    df=df[['Country','MPG','Critical?','count']]
+    stats=pd.pivot_table(df,index=['Country','MPG'],columns=['Critical?'],values='count',aggfunc=np.sum,fill_value=0)
+   
     return stats
 
 def filteringData(token):
