@@ -124,18 +124,23 @@ def ChangeValues(df):
             df[col] = df[col].replace([0],' No')
     return df
 
-def createInCountry(df):
+def createInCountry(df,CnF):
     print('Generando Hoja in country')
     df1 = df[df['Critical?'].isin(['1.0','2.0','3.0','1','2','3'])]
     df1['count'] = 1
     pivoted = pd.pivot_table(data=df1,index=['CFN'],columns=['Country'],values = 'count',fill_value=0,
                             margins=False)
     pivoted['# of Countries'] = pivoted.apply(SumCountries,axis=1)
-    df2 = df[['CFN','MPG','Global OU']]
+    df2 = df[['CFN','MPG','Global OU','Critical?']]
     pivoted = ChangeValues(pivoted)
     pivoted = pivoted.reset_index()
     pivoted = pd.merge(pivoted,df2,on='CFN',how='left')
     pivoted = pivoted.drop_duplicates(subset='CFN')
+    CnF = CnF.rename(columns={'Original CFN':'CFN','Priority':'Critical?'})
+    CnF = CnF[['CFN','Critical?','MPG','Global OU']]
+    pivoted = pd.concat([pivoted,CnF])
+    for fall in pivoted.columns:
+        pivoted[fall] = pivoted[fall].fillna('No')
 
     return pivoted
 
