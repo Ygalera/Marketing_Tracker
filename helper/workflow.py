@@ -116,7 +116,7 @@ def filteringData(token):
     print('Asignando Prioridades')
     CnF['Priority'] = CnF.progress_apply(defineCriticalCFN,axis = 1,filterList = filterList,filters =filters)
     stats = createPercentageMPG(df,filters)
-    inCountry = pr.createInCountry(df)
+    inCountry = pr.createInCountry(df,CnF)
     portfolio = pr.Createportfoliostatus(df,filters)
     byOU = pr.createSubOU(df)
     pr.create_excel(df,CnF,inCountry,portfolio,byOU,stats)
