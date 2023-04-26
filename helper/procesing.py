@@ -139,6 +139,8 @@ def createInCountry(df,CnF):
     CnF = CnF.rename(columns={'Original CFN':'CFN','Priority':'Critical?'})
     CnF = CnF[['CFN','Critical?','MPG','Global OU']]
     pivoted = pd.concat([pivoted,CnF])
+    for fall in pivoted.columns:
+        pivoted[fall] = pivoted[fall].fillna('No')
 
     return pivoted
 
